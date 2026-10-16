@@ -1,0 +1,1086 @@
+/* ===========================================================================
+   My Clothing Store — App.css
+   ---------------------------------------------------------------------------
+   The one and only stylesheet for the whole app. It styles every classname
+   used by the components (shop page, header, forms, tables, badges, buttons)
+   and nothing else — the JSX and all behaviour stay exactly the same.
+
+   The file is organised in small sections:
+     1. Design values (colours, spacing, fonts, shadows)
+     2. Base page + background
+     3. Layout wrapper (app, page content)
+     4. Header + navigation
+     5. Shop page (hero + product cards)
+     6. Panels, forms and messages
+     7. Tables, stock editing and status badges
+     8. Buttons
+     9. Animations
+    10. Phone / tablet adjustments
+   =========================================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap');
+
+/* 1. Design values ---------------------------------------------------------- */
+/* These are reused everywhere, so changing one line restyles the whole app. */
+:root {
+  /* Warm, premium boutique palette. */
+  --color-bg: #f5f1ea;
+  --color-surface: #ffffff;
+  --color-surface-2: #fbf8f4;
+  --color-text: #221b16;
+  --color-text-muted: #7d6f63;
+  --color-border: rgba(34, 27, 22, 0.1);
+  --color-border-strong: rgba(34, 27, 22, 0.18);
+
+  /* Terracotta → copper accent with a soft gold highlight. */
+  --color-accent: #b3542e;
+  --color-accent-dark: #7f3216;
+  --color-accent-soft: rgba(179, 84, 46, 0.12);
+  --color-gold: #d8a24a;
+  --color-danger: #b3261e;
+  --color-danger-soft: #fdeceb;
+
+  --color-success-bg: #e6f4e8;
+  --color-success-text: #1c5c25;
+  --color-warning-bg: #fdf0d5;
+  --color-warning-text: #8a5a00;
+  --color-info-bg: #e6edfb;
+  --color-info-text: #1f4b8f;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 40px;
+
+  --radius: 18px;
+  --radius-sm: 10px;
+  --radius-pill: 999px;
+
+  --shadow-sm: 0 1px 2px rgba(34, 27, 22, 0.05), 0 2px 6px rgba(34, 27, 22, 0.05);
+  --shadow-md: 0 18px 40px -18px rgba(34, 27, 22, 0.28);
+  --shadow-lg: 0 30px 70px -30px rgba(34, 27, 22, 0.4);
+  --shadow-glow: 0 14px 34px -14px rgba(179, 84, 46, 0.6);
+
+  --max-width: 1120px;
+  --font-body: 'Inter', system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-heading: 'Fraunces', Georgia, 'Times New Roman', serif;
+
+  --gradient-accent: linear-gradient(135deg, #b3542e 0%, #8f3d1d 55%, #7f3216 100%);
+  --gradient-hero: linear-gradient(135deg, #8f3d1d 0%, #6f2a12 45%, #3d1608 100%);
+
+  /* Down-arrow used by every <select>, so it matches the theme. */
+  --chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1.5 6 6.5 11 1.5' stroke='%237d6f63' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+}
+
+/* 2. Base page -------------------------------------------------------------- */
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-color: var(--color-bg);
+}
+
+/* A soft ambient wash that slowly drifts, so the page never feels flat. */
+#root {
+  position: relative;
+  min-height: 100vh;
+  isolation: isolate;
+}
+
+#root::before {
+  content: '';
+  position: fixed;
+  inset: -25vmax;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(closest-side at 22% 26%, rgba(216, 162, 74, 0.32), transparent),
+    radial-gradient(closest-side at 82% 16%, rgba(179, 84, 46, 0.24), transparent),
+    radial-gradient(closest-side at 62% 88%, rgba(125, 111, 99, 0.22), transparent);
+  filter: blur(28px);
+  animation: drift 26s ease-in-out infinite alternate;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  line-height: 1.18;
+  letter-spacing: -0.01em;
+  margin: 0 0 var(--space-2);
+}
+
+h2 {
+  font-size: 30px;
+}
+
+h3 {
+  font-size: 21px;
+}
+
+p {
+  margin: 0 0 var(--space-3);
+}
+
+/* A visible ring when moving through the page with the keyboard. */
+:focus-visible {
+  outline: 3px solid rgba(179, 84, 46, 0.45);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+::selection {
+  background: rgba(179, 84, 46, 0.24);
+}
+
+/* Slim, warm scrollbars that match the theme. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(34, 27, 22, 0.28) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: rgba(34, 27, 22, 0.22);
+  border-radius: var(--radius-pill);
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(34, 27, 22, 0.4);
+  background-clip: padding-box;
+}
+
+/* 3. Layout wrapper --------------------------------------------------------- */
+
+.app {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 var(--space-4) var(--space-6);
+}
+
+.page-content {
+  padding-top: var(--space-5);
+}
+
+.page-section {
+  margin-bottom: var(--space-5);
+  animation: rise 0.5s ease both;
+}
+
+.page-intro {
+  color: var(--color-text-muted);
+  margin-top: calc(var(--space-1) * -1);
+}
+
+/* A small gradient rule under each page heading (the hero keeps its own look). */
+.page-section > h2 {
+  display: inline-block;
+}
+
+.page-section > h2::after {
+  content: '';
+  display: block;
+  width: 46px;
+  height: 4px;
+  margin-top: 10px;
+  border-radius: var(--radius-pill);
+  background: var(--gradient-accent);
+}
+
+/* 4. Header + navigation ---------------------------------------------------- */
+
+.site-header {
+  position: sticky;
+  top: var(--space-3);
+  z-index: 20;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(14px) saturate(1.4);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
+  box-shadow: var(--shadow-sm);
+}
+
+.store-name {
+  position: relative;
+  margin: 0;
+  padding-left: 26px;
+  font-family: var(--font-heading);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  background: var(--gradient-accent);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* A little terracotta "tag" mark before the store name. */
+.store-name::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  transform: translateY(-50%) rotate(45deg);
+  border-radius: 4px;
+  background: var(--gradient-accent);
+  box-shadow: var(--shadow-glow);
+}
+
+.site-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* 5. Shop page -------------------------------------------------------------- */
+
+.shop-hero {
+  position: relative;
+  overflow: hidden;
+  padding: var(--space-6) var(--space-5);
+  margin-bottom: var(--space-5);
+  border-radius: calc(var(--radius) + 6px);
+  color: #fff;
+  box-shadow: var(--shadow-lg);
+  isolation: isolate;
+  /* Fine dot texture over a warm gold wash over the terracotta gradient. */
+  background-color: #6f2a12;
+  background-image:
+    radial-gradient(rgba(255, 255, 255, 0.09) 1px, transparent 1.6px),
+    radial-gradient(130% 150% at 88% -10%, rgba(216, 162, 74, 0.5), transparent 55%),
+    linear-gradient(135deg, #8f3d1d 0%, #6f2a12 45%, #3d1608 100%);
+  background-size: 20px 20px, auto, auto;
+}
+
+/* Soft golden glow in the corner of the hero. */
+.shop-hero::before {
+  content: '';
+  position: absolute;
+  inset: -40% -20% auto auto;
+  width: 60%;
+  height: 160%;
+  background: radial-gradient(closest-side, rgba(216, 162, 74, 0.55), transparent 70%);
+  z-index: -1;
+}
+
+/* A gentle, slow-moving light sweep across the hero. */
+.shop-hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    115deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.18) 48%,
+    transparent 66%
+  );
+  transform: translateX(-120%);
+  animation: sheen 7s ease-in-out infinite;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.shop-hero h2 {
+  font-size: 40px;
+  letter-spacing: -0.02em;
+  margin-bottom: var(--space-3);
+  background: linear-gradient(180deg, #ffffff 28%, #f4dcae 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  filter: drop-shadow(0 6px 24px rgba(0, 0, 0, 0.35));
+}
+
+.shop-hero p {
+  margin: 0;
+  max-width: 54ch;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 16px;
+}
+
+.product-grid {
+  display: grid;
+  /* auto-fill + minmax makes the grid responsive without extra code:
+     as many 220px columns as fit, and they stretch to fill the row. */
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: var(--space-5);
+}
+
+.product-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.28s ease, border-color 0.28s ease;
+  animation: rise 0.55s ease both;
+}
+
+/* Stagger the entrance so the grid feels alive as it loads. */
+.product-card:nth-child(1) { animation-delay: 0.02s; }
+.product-card:nth-child(2) { animation-delay: 0.06s; }
+.product-card:nth-child(3) { animation-delay: 0.1s; }
+.product-card:nth-child(4) { animation-delay: 0.14s; }
+.product-card:nth-child(5) { animation-delay: 0.18s; }
+.product-card:nth-child(6) { animation-delay: 0.22s; }
+.product-card:nth-child(n + 7) { animation-delay: 0.26s; }
+
+.product-card:hover {
+  transform: translateY(-6px);
+  border-color: rgba(179, 84, 46, 0.35);
+  box-shadow: var(--shadow-md);
+}
+
+/* A soft light sweep glides across the card on hover. */
+.product-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(
+    105deg,
+    transparent 38%,
+    rgba(255, 255, 255, 0.55) 50%,
+    transparent 62%
+  );
+  transform: translateX(-130%);
+  transition: transform 0.85s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.product-card:hover::after {
+  transform: translateX(130%);
+}
+
+.product-image {
+  display: block;
+  width: 100%;
+  /* 4:5 is a natural shape for photos of clothes. */
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  background: #efeae4;
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.product-card:hover .product-image {
+  transform: scale(1.06);
+}
+
+.product-image-missing {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: repeating-linear-gradient(
+    -45deg,
+    #f3eee8,
+    #f3eee8 12px,
+    #efe9e2 12px,
+    #efe9e2 24px
+  );
+}
+
+.product-card h3,
+.product-card .product-name {
+  margin: var(--space-4) var(--space-4) var(--space-1);
+  font-size: 18px;
+}
+
+/* Let the name take the spare space so price (and stock) line up across cards. */
+.product-card .product-name {
+  margin-bottom: auto;
+}
+
+.product-price {
+  margin: 0 var(--space-4) var(--space-3);
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  background: var(--gradient-accent);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.product-stock {
+  align-self: flex-start;
+  margin: 0 var(--space-4) var(--space-4);
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--color-accent-dark);
+  background: var(--color-accent-soft);
+}
+
+/* Keeps the card looking even when some products have no stock line. */
+.product-card .product-name + .product-price {
+  margin-top: 0;
+}
+
+/* 6. Panels, forms and messages --------------------------------------------- */
+
+.panel {
+  position: relative;
+  overflow: hidden;
+  margin-bottom: var(--space-5);
+  padding: var(--space-5);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.25s ease;
+}
+
+.panel:hover {
+  box-shadow: var(--shadow-md);
+}
+
+/* Thin gradient accent along the top of every panel. */
+.panel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--gradient-accent);
+  opacity: 0.9;
+}
+
+.panel > h3 {
+  padding-bottom: var(--space-2);
+}
+
+.panel > p:last-child {
+  margin-bottom: 0;
+}
+
+.form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: var(--space-4);
+  margin-top: var(--space-4);
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.form-field span {
+  color: var(--color-text-muted);
+  font-size: 13px;
+  letter-spacing: 0.01em;
+}
+
+.form-field input,
+.form-field select {
+  font: inherit;
+  font-weight: 400;
+  color: var(--color-text);
+  /* Push the control to the bottom so every box in a row lines up neatly,
+     even when some labels wrap onto two lines. */
+  margin-top: auto;
+  padding: 11px 13px;
+  background-color: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+/* A neat custom chevron instead of the plain browser arrow. */
+.form-field select {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 40px;
+  background-image: var(--chevron);
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+}
+
+.form-field input:hover,
+.form-field select:hover {
+  border-color: var(--color-border-strong);
+}
+
+.form-field input:focus,
+.form-field select:focus {
+  outline: none;
+  background-color: #fff;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 4px var(--color-accent-soft);
+}
+
+.form-field input::placeholder {
+  color: #b1a69c;
+}
+
+/* Messages and hints span the full width of the form grid. */
+.form-hint,
+.error-message,
+.success-message,
+.form .button-row,
+.form .primary-button,
+.form .secondary-button {
+  grid-column: 1 / -1;
+}
+
+.form-hint {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-text-muted);
+}
+
+.error-message {
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  background: var(--color-danger-soft);
+  border-left: 4px solid var(--color-danger);
+  color: var(--color-danger);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.success-message {
+  margin: 0;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  background: var(--color-success-bg);
+  border-left: 4px solid var(--color-success-text);
+  color: var(--color-success-text);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.notice {
+  padding: var(--space-4);
+  background: var(--color-warning-bg);
+  color: var(--color-warning-text);
+  border: 1px solid rgba(138, 90, 0, 0.25);
+  border-left: 4px solid rgba(138, 90, 0, 0.55);
+  border-radius: var(--radius-sm);
+}
+
+.button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  align-items: center;
+}
+
+/* 7. Tables, stock editing and status badges -------------------------------- */
+
+.table-scroll {
+  overflow-x: auto;
+  margin-top: var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: #fff;
+  box-shadow: var(--shadow-sm);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+
+th,
+td {
+  padding: 12px 14px;
+  text-align: left;
+  vertical-align: middle;
+  border-bottom: 1px solid var(--color-border);
+}
+
+th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: linear-gradient(180deg, #fbf8f4 0%, #f3eee7 100%);
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--color-border-strong);
+}
+
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+tbody tr {
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+
+tbody tr:hover {
+  background: var(--color-surface-2);
+  box-shadow: inset 3px 0 0 var(--color-accent);
+}
+
+td select {
+  font: inherit;
+  padding: 6px 30px 6px 9px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background-color: #fff;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: var(--chevron);
+  background-repeat: no-repeat;
+  background-position: right 9px center;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+td select:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px var(--color-accent-soft);
+}
+
+.stock-input {
+  width: 84px;
+  font: inherit;
+  padding: 7px 9px;
+  margin-right: var(--space-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface-2);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.stock-input:focus {
+  outline: none;
+  background: #fff;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px var(--color-accent-soft);
+}
+
+.thumb {
+  width: 46px;
+  height: 46px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  margin-right: var(--space-2);
+  vertical-align: middle;
+  border: 1px solid var(--color-border);
+  background: #efeae4;
+}
+
+.cell-product {
+  min-width: 180px;
+  font-weight: 600;
+}
+
+.cell-actions {
+  white-space: nowrap;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+  box-shadow: 0 1px 2px rgba(34, 27, 22, 0.06);
+}
+
+/* A small status dot that takes the colour of each badge. */
+.badge::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.5);
+}
+
+/* Payment + order status colours (green = done, amber = waiting, blue = busy). */
+.badge-paid,
+.badge-completed {
+  background: var(--color-success-bg);
+  color: var(--color-success-text);
+}
+
+.badge-unpaid,
+.badge-pending {
+  background: var(--color-warning-bg);
+  color: var(--color-warning-text);
+}
+
+.badge-processing {
+  background: var(--color-info-bg);
+  color: var(--color-info-text);
+}
+
+/* The Payment and Order status columns stack the badge neatly above its
+   control and centre everything, so both cells look tidy and professional. */
+.orders-table th:nth-child(8),
+.orders-table th:nth-child(9),
+.orders-table td:nth-child(8),
+.orders-table td:nth-child(9) {
+  text-align: center;
+}
+
+.orders-table td .badge {
+  display: flex;
+  width: fit-content;
+  margin: 0 auto var(--space-2);
+  padding: 5px 13px;
+}
+
+/* Give the status control the same width so the column looks tidy. */
+.orders-table td select,
+.orders-table td .small-button {
+  min-width: 138px;
+}
+
+/* The "Mark paid / Mark unpaid" toggle that sits under the payment badge. */
+.orders-table td .small-button {
+  background: var(--color-surface-2);
+}
+
+.orders-table td .small-button:hover {
+  background: #fff;
+  border-color: var(--color-border-strong);
+}
+
+/* The "show stock" switch */
+.toggle-label {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-top: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-2);
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.toggle-label:hover {
+  border-color: var(--color-border-strong);
+  background: #fff;
+}
+
+.toggle-label:has(input:focus-visible) {
+  box-shadow: 0 0 0 4px var(--color-accent-soft);
+}
+
+.toggle-label input {
+  width: 22px;
+  height: 22px;
+  accent-color: var(--color-accent);
+  cursor: pointer;
+}
+
+/* 8. Buttons ---------------------------------------------------------------- */
+
+button {
+  font: inherit;
+  font-weight: 600;
+  padding: 10px 18px;
+  color: var(--color-text);
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  transition: transform 0.15s ease, background 0.2s ease,
+    border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+button:hover {
+  background: var(--color-surface-2);
+  border-color: var(--color-border-strong);
+}
+
+button:active {
+  transform: translateY(1px);
+}
+
+button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.primary-button {
+  position: relative;
+  overflow: hidden;
+  background: var(--gradient-accent);
+  border-color: transparent;
+  color: #fff;
+  box-shadow: var(--shadow-glow);
+}
+
+/* A quick light sweep when hovered, for a premium feel. */
+.primary-button::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -60%;
+  width: 45%;
+  height: 100%;
+  background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+  transform: skewX(-20deg);
+  transition: left 0.6s ease;
+  pointer-events: none;
+}
+
+.primary-button:hover::after {
+  left: 130%;
+}
+
+.primary-button:hover {
+  background: var(--gradient-accent);
+  filter: brightness(1.06);
+  box-shadow: 0 18px 38px -14px rgba(127, 50, 22, 0.7);
+}
+
+.secondary-button {
+  background: #fff;
+  color: var(--color-accent-dark);
+  border-color: rgba(179, 84, 46, 0.45);
+}
+
+.secondary-button:hover {
+  background: var(--color-accent-soft);
+  border-color: var(--color-accent);
+}
+
+.small-button {
+  padding: 6px 13px;
+  font-size: 13px;
+}
+
+.danger-button {
+  color: var(--color-danger);
+  border-color: rgba(179, 38, 30, 0.4);
+}
+
+.danger-button:hover {
+  background: var(--color-danger-soft);
+  border-color: var(--color-danger);
+}
+
+/* Header navigation (Shop / Admin / Log out) and dashboard tabs. */
+.nav-button,
+.tab-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 9px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-pill);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: transform 0.15s ease, background 0.2s ease,
+    border-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.nav-button:hover,
+.tab-button:hover {
+  color: var(--color-text);
+  background: rgba(34, 27, 22, 0.06);
+  border-color: var(--color-border);
+  transform: translateY(-1px);
+}
+
+.nav-button:active,
+.tab-button:active {
+  transform: translateY(0);
+}
+
+.nav-button-active,
+.tab-button-active {
+  color: #fff;
+  background: var(--gradient-accent);
+  border-color: transparent;
+  box-shadow: var(--shadow-glow);
+}
+
+.nav-button-active:hover,
+.tab-button-active:hover {
+  color: #fff;
+  background: var(--gradient-accent);
+  filter: brightness(1.06);
+  transform: translateY(-1px);
+}
+
+/* "Log out" is the only <button> in the header nav, so give it a distinct look. */
+button.nav-button {
+  color: var(--color-accent-dark);
+  border-color: rgba(179, 84, 46, 0.35);
+}
+
+button.nav-button:hover {
+  color: var(--color-danger);
+  background: var(--color-danger-soft);
+  border-color: rgba(179, 38, 30, 0.4);
+}
+
+.tab-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+  margin-bottom: var(--space-5);
+  padding: var(--space-1);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: var(--shadow-sm);
+  width: fit-content;
+  max-width: 100%;
+}
+
+/* 9. Animations ------------------------------------------------------------- */
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes sheen {
+  0% {
+    transform: translateX(-120%);
+  }
+  55%,
+  100% {
+    transform: translateX(120%);
+  }
+}
+
+/* The slow, breathing motion of the ambient background wash. */
+@keyframes drift {
+  from {
+    transform: translate3d(-2%, -2%, 0) scale(1);
+  }
+  to {
+    transform: translate3d(2.5%, 2%, 0) scale(1.08);
+  }
+}
+
+/* Respect visitors who prefer less motion. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* 10. Phone and tablet adjustments ----------------------------------------- */
+
+@media (max-width: 760px) {
+  h2 {
+    font-size: 25px;
+  }
+
+  .shop-hero {
+    padding: var(--space-5) var(--space-4);
+  }
+
+  .shop-hero h2 {
+    font-size: 27px;
+  }
+
+  .product-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: var(--space-4);
+  }
+
+  .panel {
+    padding: var(--space-4);
+  }
+
+  .site-header {
+    justify-content: flex-start;
+    top: var(--space-2);
+  }
+
+  .site-nav {
+    width: 100%;
+  }
+
+  .site-nav .nav-button {
+    flex: 1 1 auto;
+  }
+
+  .tab-buttons {
+    width: 100%;
+  }
+
+  .tab-buttons .tab-button {
+    flex: 1 1 auto;
+  }
+}

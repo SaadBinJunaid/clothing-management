@@ -1,0 +1,90 @@
+rules_version = '2';
+
+// ---------------------------------------------------------------------------
+// Cloud Firestore security rules
+// ---------------------------------------------------------------------------
+// These rules are the REAL protection. Hiding buttons in React is only a
+// convenience — anyone can call Firestore directly, so the database itself
+// must decide who may read and write what.
+//
+// How to use them:
+//   1. Firebase console -> Firestore Database -> Rules, paste this file, Publish.
+//      (Or, with the Firebase CLI: firebase deploy --only firestore:rules)
+//   2. Test with two browsers: one logged out, one logged in as the admin.
+//
+// Who is the admin? This shop has exactly one admin account, created by hand in
+// Firebase Authentication. "Signed in" therefore means "the seller".
+// To lock it to one email address as well, replace isAdmin() below with:
+//   function isAdmin() {
+//     return request.auth != null && request.auth.token.email == 'seller@example.com';
+//   }
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAdmin() {
+      return request.auth != null;
+    }
+
+    // Products: customers browse the shop without an account, so reading is
+    // public. Only the signed-in seller may add, change or remove products.
+    match /products/{productId} {
+      allow read: if true;
+
+      allow create, update: if isAdmin()
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0
+        && request.resource.data.price is number
+        && request.resource.data.price >= 0
+        && request.resource.data.stockQuantity is int
+        && request.resource.data.stockQuantity >= 0;
+
+      allow delete: if isAdmin();
+    }
+
+    // Settings: the shop page must read the stock visibility switch even when
+    // nobody is logged in, so reads are public. Only the seller may change it.
+    match /settings/{settingId} {
+      allow read: if true;
+
+      allow write: if isAdmin()
+        && request.resource.data.visible is bool;
+    }
+
+    // Orders: business data. Customers and strangers may never read or write
+    // these — not even to read a single order they placed.
+    match /orders/{orderId} {
+      allow read: if isAdmin();
+
+      allow create: if isAdmin()
+        && request.resource.data.customerName is string
+        && request.resource.data.customerName.size() > 0
+        && request.resource.data.customerContact is string
+        && request.resource.data.customerContact.size() > 0
+        && request.resource.data.source is string
+        && request.resource.data.productId is string
+        && request.resource.data.productName is string
+        && request.resource.data.quantity is int
+        && request.resource.data.quantity >= 1
+        && request.resource.data.totalAmount is number
+        && request.resource.data.totalAmount >= 0
+        && request.resource.data.paymentStatus in ['Paid', 'Unpaid']
+        && request.resource.data.orderStatus in ['Pending', 'Processing', 'Completed'];
+
+      // Status updates may only touch the status fields, so an accidental
+      // rewrite cannot change who ordered or what was ordered.
+      allow update: if isAdmin()
+        && request.resource.data.diff(resource.data).affectedKeys()
+             .hasOnly(['paymentStatus', 'orderStatus'])
+        && request.resource.data.paymentStatus in ['Paid', 'Unpaid']
+        && request.resource.data.orderStatus in ['Pending', 'Processing', 'Completed'];
+
+      allow delete: if false;
+    }
+
+    // Everything else stays closed.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
